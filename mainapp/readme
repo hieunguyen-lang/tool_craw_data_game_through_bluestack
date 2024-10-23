@@ -1,0 +1,21 @@
+adb connect 127.0.0.1:5555
+adb devices
+lấy file ui
+adb -s emulator-5554 shell uiautomator dump /sdcard/window_dump.xml
+adb -s emulator-5554 pull /sdcard/window_dump.xml
+
+adb pull /sdcard/ui.xml C:\Users\Admin\Documents\tool\tool_craw_data_game_through_bluestack
+
+chụp màn hinh
+adb -s emulator-5554 exec-out screencap -p > screenshot.png
+
+Bạn có thể khởi động lại dịch vụ ADB bằng cách:
+adb kill-server
+adb start-server
+
+
+B1:Lệnh toạ độ click proile   adb -s 127.0.0.1:5555 shell input tap 37 37
+B2:Lệnh click bảng xếp hạng   adb -s 127.0.0.1:5555 shell input tap 300 450
+B3: Lệnh click sức mạnh cá nhân  adb -s 127.0.0.1:5555 shell input tap 160 300
+B4: Lệnh click profile  
+pro1: adb -s 127.0.0.1:5555 shell input tap 470 170 || click xem info1: adb -s 127.0.0.1:5555 shell input tap 670 190 ||click xem info2: adb -s 127.0.0.1:5555 shell input tap 210 450
