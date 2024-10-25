@@ -9,19 +9,28 @@ from datetime import datetime
 import re
 import json
 import os
+import subprocess
 start_time =datetime.now()
+
 # Đường dẫn đến tesseract.exe (chỉ cần cho Windows)
 with open('input.json', 'r') as f:
     config = json.load(f)
+path_adb = config["adb_path"]
 tesseract_path = config['tesseract_path']
 pytesseract.pytesseract.tesseract_cmd = tesseract_path
-def export_excel(list_rank, list_id, list_name, list_power, list_kill_points,list_t4_kills, list_t4_kills_points, list_t5_kills, list_t5_kills_points,list_dead):
+def export_excel(list_rank, list_id, list_name, list_power, list_kill_points, list_t1_kills, list_t1_kills_points, list_t2_kills, list_t2_kills_points, list_t3_kills, list_t3_kills_points,list_t4_kills, list_t4_kills_points, list_t5_kills, list_t5_kills_points,list_dead):
     data = {
     'Rank': [],
     'ID': [],
     'Name': [],
     'Power': [],
     'Kill Points': [],
+    'T1 Kills': [],
+    'T1 Kills Points': [],
+    'T2 Kills': [],
+    'T2 Kills Points': [],
+    'T3 Kills': [],
+    'T3 Kills Points': [],
     'T4 Kills': [],
     'T4 Kills Points': [],
     'T5 Kills': [],
@@ -29,12 +38,14 @@ def export_excel(list_rank, list_id, list_name, list_power, list_kill_points,lis
     'Dead': []
     }
     df = pd.DataFrame(data)
-    new_data = pd.DataFrame({'Rank': list_rank, 'ID': list_id, 'Name': list_name, 'Power': list_power, 'Power': list_power, 'Kill Points': list_kill_points, 'T4 Kills': list_t4_kills, 'T4 Kills Points': list_t4_kills_points, 'T5 Kills': list_t5_kills, 'T5 Kills Points': list_t5_kills_points, 'Dead': list_dead})
+    new_data = pd.DataFrame({'Rank': list_rank, 'ID': list_id, 'Name': list_name, 'Power': list_power, 'Power': list_power, 'Kill Points': list_kill_points,  'T1 Kills': list_t1_kills, 'T1 Kills Points': list_t1_kills_points, 'T2 Kills': list_t2_kills, 'T2 Kills Points': list_t2_kills_points, 'T3 Kills': list_t3_kills, 'T3 Kills Points': list_t3_kills_points, 'T4 Kills': list_t4_kills, 'T4 Kills Points': list_t4_kills_points, 'T5 Kills': list_t5_kills, 'T5 Kills Points': list_t5_kills_points, 'Dead': list_dead})
     df = pd.concat([df, new_data], ignore_index=True)
     df.to_excel('./result.xlsx', index=False)
 
 # Kết nối đến BlueStacks
 try:
+    subprocess.run([path_adb, "kill-server"], check=True)
+    subprocess.run([path_adb, "start-server"], check=True)
     adb = AdbClient(host='127.0.0.1', port=5037)  # Đảm bảo sử dụng port 5037 cho ADB
     devices = adb.devices()  # Lấy danh sách thiết bị
     if devices:
@@ -43,7 +54,8 @@ try:
         print("Không tìm thấy thiết bị.")
 except Exception as e:
     print(f"Có lỗi xảy ra: {e}")
-device = devices[0]
+    time.sleep(100)
+device = devices[config["device"]]
  # Thay đổi ID thiết bị nếu cần
 # Thời gian chờ để ứng dụng tải
 
@@ -52,6 +64,7 @@ device = devices[0]
 
 def go_to_rank(device):
     try:
+        time.sleep(1)
         x_coordinate = 37  # Thay đổi tọa độ X
         y_coordinate = 37 
         device.shell(f'input tap {x_coordinate} {y_coordinate}')
@@ -85,6 +98,12 @@ def get_data_craw(device):
     device.shell(f'input tap {x_pro1_info1} {y_pro1_info1}')
     time.sleep(1)
     screenshot_ask_button = device.screencap()
+    t1_kills = convert_img_to_string(screenshot_ask_button, 518, 258, 518+150, 258+15)
+    t1_kills_points = convert_img_to_string(screenshot_ask_button, 755, 258, 750+100, 258+15)
+    t2_kills = convert_img_to_string(screenshot_ask_button, 518, 283, 518+150, 283+15)
+    t2_kills_points = convert_img_to_string(screenshot_ask_button, 755, 283, 750+100, 283+15)
+    t3_kills = convert_img_to_string(screenshot_ask_button, 518, 311, 518+150, 311+15) 
+    t3_kills_points = convert_img_to_string(screenshot_ask_button, 755, 311, 750+100, 311+15)
     t4_kills = convert_img_to_string(screenshot_ask_button, 518, 337, 518+150, 337+15)
     t4_kills_points = convert_img_to_string(screenshot_ask_button, 755, 337, 750+104, 337+17)
     t5_kills = convert_img_to_string(screenshot_ask_button, 518, 365, 518+100, 365+15)
@@ -112,7 +131,7 @@ def get_data_craw(device):
     y_exit_pro_2 = 62 
     device.shell(f'input tap {x_exit_pro_2} {y_exit_pro_2}')
     
-    return id, name, power, kill_points,t4_kills, t4_kills_points, t5_kills, t5_kills_points,dead
+    return id, name, power, kill_points,  t1_kills, t1_kills_points, t2_kills, t2_kills_points ,t3_kills, t3_kills_points, t4_kills, t4_kills_points, t5_kills, t5_kills_points,dead
 def convert_img_to_string(screenshot, x, y, w, h):
     with open('image/screenshot.png', 'wb') as f:
         f.write(screenshot)
@@ -133,6 +152,13 @@ def convert_img_to_string(screenshot, x, y, w, h):
     return text_clean
 
 try:
+    print("Tool By Nguyen Khac Hieu")
+    print("Starting Tool....")
+    specific_date = datetime(2060, 10, 26)
+    today = datetime.now()
+    if today > specific_date:
+            print(f"This tool is expired!! Contact owner! telegram: https://t.me/hieunguyenkhac")
+            raise Exception("This tool is expired!! Contact owner! telegram: https://t.me/hieunguyenkhac")
     go_to_rank(device)
     x_pro1 = 470  # Thay đổi tọa độ X
     y_pro1 = 170
@@ -141,6 +167,12 @@ try:
     list_name = []
     list_power = []
     list_kill_points = []
+    list_t1_kills = []
+    list_t1_kills_points = []
+    list_t2_kills = []
+    list_t2_kills_points = []
+    list_t3_kills = []
+    list_t3_kills_points = []
     list_t4_kills = []
     list_t4_kills_points = []
     list_t5_kills = []
@@ -154,12 +186,18 @@ try:
         print("Đã nhấp vào profile")
         time.sleep(1)
 
-        id, name, power, kill_points, t4_kills, t4_kills_points, t5_kills, t5_kills_points, dead = get_data_craw(device)
+        id, name, power, kill_points, t1_kills, t1_kills_points, t2_kills, t2_kills_points ,t3_kills, t3_kills_points, t4_kills, t4_kills_points, t5_kills, t5_kills_points, dead = get_data_craw(device)
         list_rank.append(i+1)
         list_id.append(id)
         list_name.append(name)
         list_power.append(power)
         list_kill_points.append(kill_points)
+        list_t1_kills.append(t1_kills)
+        list_t1_kills_points.append(t1_kills_points)
+        list_t2_kills.append(t2_kills)
+        list_t2_kills_points.append(t2_kills_points)
+        list_t3_kills.append(t3_kills)
+        list_t3_kills_points.append(t3_kills_points)
         list_t4_kills.append(t4_kills)
         list_t4_kills_points.append(t4_kills_points)
         list_t5_kills.append(t5_kills)
@@ -167,10 +205,11 @@ try:
         list_dead.append(dead)
         y_pro1 += 60
         time.sleep(2)
-    export_excel(list_rank, list_id, list_name, list_power, list_kill_points,list_t4_kills, list_t4_kills_points, list_t5_kills, list_t5_kills_points,list_dead)
+    export_excel(list_rank, list_id, list_name, list_power, list_kill_points, list_t1_kills, list_t1_kills_points, list_t2_kills, list_t2_kills_points, list_t3_kills, list_t3_kills_points,list_t4_kills, list_t4_kills_points, list_t5_kills, list_t5_kills_points,list_dead)
     end_time = datetime.now() 
     result_time = end_time - start_time
     print(f"THời gian hoàn thành {result_time}")
+    time.sleep(100)
 except Exception as e:
-    export_excel(list_rank, list_id, list_name, list_power, list_kill_points,list_t4_kills, list_t4_kills_points, list_t5_kills, list_t5_kills_points,list_dead)
-    print(f"Có lỗi xảy ra khi nhấp: {e}")
+    print(e)
+    time.sleep(100)

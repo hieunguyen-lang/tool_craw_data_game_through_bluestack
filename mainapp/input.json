@@ -1,4 +1,6 @@
 {
     "tesseract_path": "C:\\Users\\Admin\\Documents\\tool\\tool_craw_data_game_through_bluestack\\tesseract.exe",
-    "data_craw": 500
+    "adb_path": "C:/platform-tools-latest-windows/platform-tools/adb.exe",
+    "data_craw": 5,
+    "device": 0
 }

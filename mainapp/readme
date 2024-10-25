@@ -19,3 +19,6 @@ B2:Lệnh click bảng xếp hạng   adb -s 127.0.0.1:5555 shell input tap 300 
 B3: Lệnh click sức mạnh cá nhân  adb -s 127.0.0.1:5555 shell input tap 160 300
 B4: Lệnh click profile  
 pro1: adb -s 127.0.0.1:5555 shell input tap 470 170 || click xem info1: adb -s 127.0.0.1:5555 shell input tap 670 190 ||click xem info2: adb -s 127.0.0.1:5555 shell input tap 210 450 || click exit1: adb -s 127.0.0.1:5555 shell input tap 836 32|| click exit2: adb -s 127.0.0.1:5555 shell input tap 819 62
+
+C:\Users\Admin\Documents\tool\tool_craw_data_game_through_bluestack\mainapp\myenv
+pyinstaller --onefile --paths=C:/Users/Admin/Documents/tool/tool_craw_data_game_through_bluestack/mainapp/myenv/Lib/site-packages tool_craw.py
