@@ -62,7 +62,7 @@ device = devices[config["device"]]
 # Đặt tọa độ mà bạn muốn nhấp
  # Thay đổi tọa độ Y
 
-def go_to_rank(device):
+def go_to_rank(device,choice):
     try:
         time.sleep(1)
         x_coordinate = 37  # Thay đổi tọa độ X
@@ -75,7 +75,7 @@ def go_to_rank(device):
         device.shell(f'input tap {x_rank} {y_rank}')
         
         time.sleep(1)
-        x_power_person = 160  # Thay đổi tọa độ X
+        x_power_person = choice  # Thay đổi tọa độ X
         y_power_person = 300
         device.shell(f'input tap {x_power_person} {y_power_person}')
         time.sleep(1)
@@ -96,7 +96,7 @@ def get_data_craw(device):
     x_pro1_info1 = 670  # Thay đổi tọa độ X
     y_pro1_info1 = 190 
     device.shell(f'input tap {x_pro1_info1} {y_pro1_info1}')
-    time.sleep(1)
+    time.sleep(1.55)
     screenshot_ask_button = device.screencap()
     t1_kills = convert_img_to_string(screenshot_ask_button, 518, 258, 518+150, 258+15)
     t1_kills_points = convert_img_to_string(screenshot_ask_button, 755, 258, 750+100, 258+15)
@@ -114,9 +114,9 @@ def get_data_craw(device):
    
     x_copy_name = 225  # Thay đổi tọa độ X
     y_copy_name = 93 
-    time.sleep(1)
+    time.sleep(1.5)
     device.shell(f'input tap {x_copy_name} {y_copy_name}')
-    time.sleep(1)
+    time.sleep(1.5)
     name = pyperclip.paste()
     print(name)
     pyperclip.copy('')
@@ -126,7 +126,7 @@ def get_data_craw(device):
     y_exit_pro_1 = 32 
     device.shell(f'input tap {x_exit_pro_1} {y_exit_pro_1}')
     
-    time.sleep(1)
+    time.sleep(1.5)
     x_exit_pro_2 = 819  # Thay đổi tọa độ X
     y_exit_pro_2 = 62 
     device.shell(f'input tap {x_exit_pro_2} {y_exit_pro_2}')
@@ -150,16 +150,30 @@ def convert_img_to_string(screenshot, x, y, w, h):
     text_clean = re.sub(r'\D', '', text)
     print(text_clean)
     return text_clean
-
+def move_to_stat_craw():
+    x1, y1, x2, y2, duration = 340, 384.7, 340, 324.1, 3000
+    device.shell(f"input swipe {x1} {y1} {x2} {y2} {duration}")
+    #device.shell(f"input touchscreen  swipe {x2} {y2} {x2} {y2} 1000")
+    time.sleep(2)
 try:
     print("Tool By Nguyen Khac Hieu")
     print("Starting Tool....")
+    
     specific_date = datetime(2060, 10, 26)
     today = datetime.now()
     if today > specific_date:
             print(f"This tool is expired!! Contact owner! telegram: https://t.me/hieunguyenkhac")
             raise Exception("This tool is expired!! Contact owner! telegram: https://t.me/hieunguyenkhac")
-    go_to_rank(device)
+    
+    input_choice = input("Nhập 1 để craw sức mạnh cá nhân \nNhập 2 để craw kĩ năng cá nhân \nNhập 3 để craw từ 1 vị trí trrong bảng xếp hạng \nLựa chọn:")
+    if int(input_choice) == 1:
+        choice=160
+        go_to_rank(device,choice)
+    elif int(input_choice) == 2:
+        choice = 405
+        go_to_rank(device,choice)
+    elif int(input_choice) == 3:
+        print("Tiến anh craw từ bảng xếp hạng hiện tại")    
     x_pro1 = 470  # Thay đổi tọa độ X
     y_pro1 = 170
     list_rank =[]
@@ -179,15 +193,31 @@ try:
     list_t5_kills_points = []
     list_dead = []
     input_records = int(config['data_craw'])
-    for i in range(input_records):
-        if i >=4:
+   
+    skip_profile_set = list(set(config["skip_profile"]))
+    for i in range(input_records): 
+        rank=i+1
+        if i+1 in skip_profile_set and i <4 and input_choice !=3:
+            y_pro1 += 60
+            continue
+        if i >=4 and input_choice !=3:
             y_pro1=360
+            if i+1 in skip_profile_set:
+                move_to_stat_craw()
+                rank=i+1
+                continue
+        if int(input_choice) ==3:
+            y_pro1=360
+            if i+1 in skip_profile_set:
+                move_to_stat_craw()
+                rank=i+1
+                continue    
         device.shell(f'input tap {x_pro1} {y_pro1}')
         print("Đã nhấp vào profile")
-        time.sleep(1)
-
+        time.sleep(1.5)
+        
         id, name, power, kill_points, t1_kills, t1_kills_points, t2_kills, t2_kills_points ,t3_kills, t3_kills_points, t4_kills, t4_kills_points, t5_kills, t5_kills_points, dead = get_data_craw(device)
-        list_rank.append(i+1)
+        list_rank.append(rank)
         list_id.append(id)
         list_name.append(name)
         list_power.append(power)
