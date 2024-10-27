@@ -85,29 +85,32 @@ def go_to_rank(device,choice):
 
 
 
-def get_data_craw(device):
+def get_data_craw(device, rank):
 
     screenshot_id = device.screencap()  # Chụp ảnh màn hình 
     #(442, 116, 442 + 59, 116 + 18)
-    id = convert_img_to_string(screenshot_id, 442, 116, 442+58, 116+18)
-    power = convert_img_to_string(screenshot_id, 520, 197, 520+130, 197+25)
-    kill_points = convert_img_to_string(screenshot_id, 670, 195, 670+140, 195+25)
-
+    id = convert_img_to_string(screenshot_id, 442, 116, 442+58, 116+18, "id",rank)
+    power = convert_img_to_string(screenshot_id, 520, 197, 520+130, 197+25, "power", rank)
+    kill_points = convert_img_to_string(screenshot_id, 670, 195, 670+140, 195+25, "kill_points", rank)
+    next_profile =False
+    if power =="" and kill_points =="":
+        next_profile =True
+        return "", "", "", "", "", "", "", "", "", "", "", "", "", "","", next_profile
     x_pro1_info1 = 670  # Thay đổi tọa độ X
     y_pro1_info1 = 190 
     device.shell(f'input tap {x_pro1_info1} {y_pro1_info1}')
     time.sleep(1.55)
     screenshot_ask_button = device.screencap()
-    t1_kills = convert_img_to_string(screenshot_ask_button, 518, 258, 518+150, 258+15)
-    t1_kills_points = convert_img_to_string(screenshot_ask_button, 755, 258, 750+100, 258+15)
-    t2_kills = convert_img_to_string(screenshot_ask_button, 518, 283, 518+150, 283+15)
-    t2_kills_points = convert_img_to_string(screenshot_ask_button, 755, 283, 750+100, 283+15)
-    t3_kills = convert_img_to_string(screenshot_ask_button, 518, 311, 518+150, 311+15) 
-    t3_kills_points = convert_img_to_string(screenshot_ask_button, 755, 311, 750+100, 311+15)
-    t4_kills = convert_img_to_string(screenshot_ask_button, 518, 337, 518+150, 337+15)
-    t4_kills_points = convert_img_to_string(screenshot_ask_button, 755, 337, 750+104, 337+17)
-    t5_kills = convert_img_to_string(screenshot_ask_button, 518, 365, 518+100, 365+15)
-    t5_kills_points = convert_img_to_string(screenshot_ask_button, 755, 365, 750+100, 365+15)
+    t1_kills = convert_img_to_string(screenshot_ask_button, 518, 258, 518+150, 258+15, "t1_kills", rank)
+    t1_kills_points = convert_img_to_string(screenshot_ask_button, 755, 258, 750+100, 258+15, "t1_kills_points", rank)
+    t2_kills = convert_img_to_string(screenshot_ask_button, 518, 283, 518+150, 283+15, "t2_kills", rank)
+    t2_kills_points = convert_img_to_string(screenshot_ask_button, 755, 283, 750+100, 283+15, "t2_kills_points", rank)
+    t3_kills = convert_img_to_string(screenshot_ask_button, 518, 311, 518+150, 311+15, "t3_kills", rank) 
+    t3_kills_points = convert_img_to_string(screenshot_ask_button, 755, 311, 750+100, 311+15, "t3_kills_points", rank)
+    t4_kills = convert_img_to_string(screenshot_ask_button, 518, 337, 518+150, 337+15, "t4_kills", rank)
+    t4_kills_points = convert_img_to_string(screenshot_ask_button, 755, 337, 750+104, 337+17, "t4_kills_points", rank)
+    t5_kills = convert_img_to_string(screenshot_ask_button, 518, 365, 518+100, 365+15, "t5_kills", rank)
+    t5_kills_points = convert_img_to_string(screenshot_ask_button, 755, 365, 750+100, 365+15, "t5_kills_points", rank)
     x_pro1_info2 = 210  # Thay đổi tọa độ X
     y_pro1_info2 = 450
     device.shell(f'input tap {x_pro1_info2} {y_pro1_info2}')
@@ -121,7 +124,7 @@ def get_data_craw(device):
     print(name)
     pyperclip.copy('')
     screenshot_detail = device.screencap()
-    dead = convert_img_to_string(screenshot_detail, 675, 265, 675+110, 265+21)
+    dead = convert_img_to_string(screenshot_detail, 675, 265, 675+110, 265+21, "dead", rank)
     x_exit_pro_1 = 836  # Thay đổi tọa độ X
     y_exit_pro_1 = 32 
     device.shell(f'input tap {x_exit_pro_1} {y_exit_pro_1}')
@@ -131,22 +134,30 @@ def get_data_craw(device):
     y_exit_pro_2 = 62 
     device.shell(f'input tap {x_exit_pro_2} {y_exit_pro_2}')
     
-    return id, name, power, kill_points,  t1_kills, t1_kills_points, t2_kills, t2_kills_points ,t3_kills, t3_kills_points, t4_kills, t4_kills_points, t5_kills, t5_kills_points,dead
-def convert_img_to_string(screenshot, x, y, w, h):
+    return id, name, power, kill_points,  t1_kills, t1_kills_points, t2_kills, t2_kills_points ,t3_kills, t3_kills_points, t4_kills, t4_kills_points, t5_kills, t5_kills_points,dead,next_profile
+def convert_img_to_string(screenshot, x, y, w, h, identify, rank):
     with open('image/screenshot.png', 'wb') as f:
         f.write(screenshot)
     img = Image.open('image/screenshot.png')
     cropped_image = img.crop((x, y, w, h))
     cropped_image.save('image/screenshot.png')
     text = pytesseract.image_to_string(cropped_image)
+    list_identity_kills = ["t1_kills","t2_kills","t3_kills","t4_kills","t5_kills"]
     if text == "":
         draw = ImageDraw.Draw(cropped_image)
         points = [(8, 7), (9, 7), (10, 7), (8, 8), (9, 8), (10, 8), (8, 9)]
+        if identify in list_identity_kills:
+            points = [(90, 8), (90, 7), (90, 6), (91, 8), (91, 7), (91, 6), (92, 8), (92, 7), (92, 6)]    
         for point in points:
             x, y = point
             draw.ellipse((x-2, y-2, x+2, y+2), fill='black')
         cropped_image.save('image/screenshot.png')
         text = pytesseract.image_to_string(cropped_image)
+    if text =="":
+        path =identify + str(rank)
+        cropped_image.save(f'image/{path}.png')
+        with open("./err.txt", 'a+', encoding='utf-8') as output_file:
+                output_file.write(identify + str(rank))
     text_clean = re.sub(r'\D', '', text)
     print(text_clean)
     return text_clean
@@ -195,46 +206,81 @@ try:
     input_records = int(config['data_craw'])
    
     skip_profile_set = list(set(config["skip_profile"]))
-    for i in range(input_records): 
-        rank=i+1
-        if i+1 in skip_profile_set and i <4 and input_choice !=3:
-            y_pro1 += 60
-            continue
-        if i >=4 and input_choice !=3:
-            y_pro1=360
-            if i+1 in skip_profile_set:
-                move_to_stat_craw()
-                rank=i+1
+    if int(input_choice) ==1 or int(input_choice) ==2:
+        for i in range(input_records): 
+            rank=i+1
+            if i+1 in skip_profile_set and i <4:
+                y_pro1 += 60
                 continue
-        if int(input_choice) ==3:
+            if i >=4:
+                y_pro1=360
+                if i+1 in skip_profile_set:
+                    move_to_stat_craw()
+                    rank=i+1
+                    continue   
+            device.shell(f'input tap {x_pro1} {y_pro1}')
+            print("Đã nhấp vào profile")
+            time.sleep(1.5)
+            
+            id, name, power, kill_points, t1_kills, t1_kills_points, t2_kills, t2_kills_points ,t3_kills, t3_kills_points, t4_kills, t4_kills_points, t5_kills, t5_kills_points, dead,next_profile = get_data_craw(device,rank)
+            if next_profile:
+                move_to_stat_craw()
+                rank+=1
+                continue    
+            list_rank.append(rank)
+            list_id.append(id)
+            list_name.append(name)
+            list_power.append(power)
+            list_kill_points.append(kill_points)
+            list_t1_kills.append(t1_kills)
+            list_t1_kills_points.append(t1_kills_points)
+            list_t2_kills.append(t2_kills)
+            list_t2_kills_points.append(t2_kills_points)
+            list_t3_kills.append(t3_kills)
+            list_t3_kills_points.append(t3_kills_points)
+            list_t4_kills.append(t4_kills)
+            list_t4_kills_points.append(t4_kills_points)
+            list_t5_kills.append(t5_kills)
+            list_t5_kills_points.append(t5_kills_points)
+            list_dead.append(dead)
+            y_pro1 += 60
+            time.sleep(2)
+    elif int(input_choice) ==3:
+        start_rank = input("Nhập vị trí rank bắt đầu\nLựa chọn:")
+        for i in range(int(start_rank),input_records): 
+            rank=i
             y_pro1=360
-            if i+1 in skip_profile_set:
+            if i in skip_profile_set:
                 move_to_stat_craw()
                 rank=i+1
                 continue    
-        device.shell(f'input tap {x_pro1} {y_pro1}')
-        print("Đã nhấp vào profile")
-        time.sleep(1.5)
-        
-        id, name, power, kill_points, t1_kills, t1_kills_points, t2_kills, t2_kills_points ,t3_kills, t3_kills_points, t4_kills, t4_kills_points, t5_kills, t5_kills_points, dead = get_data_craw(device)
-        list_rank.append(rank)
-        list_id.append(id)
-        list_name.append(name)
-        list_power.append(power)
-        list_kill_points.append(kill_points)
-        list_t1_kills.append(t1_kills)
-        list_t1_kills_points.append(t1_kills_points)
-        list_t2_kills.append(t2_kills)
-        list_t2_kills_points.append(t2_kills_points)
-        list_t3_kills.append(t3_kills)
-        list_t3_kills_points.append(t3_kills_points)
-        list_t4_kills.append(t4_kills)
-        list_t4_kills_points.append(t4_kills_points)
-        list_t5_kills.append(t5_kills)
-        list_t5_kills_points.append(t5_kills_points)
-        list_dead.append(dead)
-        y_pro1 += 60
-        time.sleep(2)
+            device.shell(f'input tap {x_pro1} {y_pro1}')
+            print("Đã nhấp vào profile")
+            time.sleep(1.5)
+            
+            id, name, power, kill_points, t1_kills, t1_kills_points, t2_kills, t2_kills_points ,t3_kills, t3_kills_points, t4_kills, t4_kills_points, t5_kills, t5_kills_points, dead, next_profile = get_data_craw(device, rank)
+            if next_profile:
+                move_to_stat_craw()
+                rank+=1
+                continue
+            list_rank.append(rank)
+            list_id.append(id)
+            list_name.append(name)
+            list_power.append(power)
+            list_kill_points.append(kill_points)
+            list_t1_kills.append(t1_kills)
+            list_t1_kills_points.append(t1_kills_points)
+            list_t2_kills.append(t2_kills)
+            list_t2_kills_points.append(t2_kills_points)
+            list_t3_kills.append(t3_kills)
+            list_t3_kills_points.append(t3_kills_points)
+            list_t4_kills.append(t4_kills)
+            list_t4_kills_points.append(t4_kills_points)
+            list_t5_kills.append(t5_kills)
+            list_t5_kills_points.append(t5_kills_points)
+            list_dead.append(dead)
+            y_pro1 += 60
+            time.sleep(2)
     export_excel(list_rank, list_id, list_name, list_power, list_kill_points, list_t1_kills, list_t1_kills_points, list_t2_kills, list_t2_kills_points, list_t3_kills, list_t3_kills_points,list_t4_kills, list_t4_kills_points, list_t5_kills, list_t5_kills_points,list_dead)
     end_time = datetime.now() 
     result_time = end_time - start_time
