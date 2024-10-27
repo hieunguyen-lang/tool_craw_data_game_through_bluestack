@@ -8,7 +8,7 @@ import pyperclip
 from datetime import datetime
 import re
 import json
-import os
+import cv2
 import subprocess
 start_time =datetime.now()
 
@@ -93,7 +93,7 @@ def get_data_craw(device, rank):
     power = convert_img_to_string(screenshot_id, 520, 197, 520+130, 197+25, "power", rank)
     kill_points = convert_img_to_string(screenshot_id, 670, 195, 670+140, 195+25, "kill_points", rank)
     next_profile =False
-    if power =="" and kill_points =="":
+    if power =="0" and kill_points =="0" and id == "0":
         next_profile =True
         return "", "", "", "", "", "", "", "", "", "", "", "", "", "","", next_profile
     x_pro1_info1 = 670  # Thay đổi tọa độ X
@@ -138,26 +138,24 @@ def get_data_craw(device, rank):
 def convert_img_to_string(screenshot, x, y, w, h, identify, rank):
     with open('image/screenshot.png', 'wb') as f:
         f.write(screenshot)
-    img = Image.open('image/screenshot.png')
-    cropped_image = img.crop((x, y, w, h))
-    cropped_image.save('image/screenshot.png')
-    text = pytesseract.image_to_string(cropped_image)
-    list_identity_kills = ["t1_kills","t2_kills","t3_kills","t4_kills","t5_kills"]
-    if text == "":
-        draw = ImageDraw.Draw(cropped_image)
-        points = [(8, 7), (9, 7), (10, 7), (8, 8), (9, 8), (10, 8), (8, 9)]
-        if identify in list_identity_kills:
-            points = [(90, 8), (90, 7), (90, 6), (91, 8), (91, 7), (91, 6), (92, 8), (92, 7), (92, 6)]    
-        for point in points:
-            x, y = point
-            draw.ellipse((x-2, y-2, x+2, y+2), fill='black')
-        cropped_image.save('image/screenshot.png')
-        text = pytesseract.image_to_string(cropped_image)
+    image = cv2.imread('image/screenshot.png')
+    cropped_cv = image[y:h, x:w]
+    gray = cv2.cvtColor(cropped_cv, cv2.COLOR_BGR2GRAY)
+    
+    _, binary = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    processed_image = Image.fromarray(binary)
+
+    custom_config = r'--oem 3 --psm 6 -c tessedit_char_whitelist=0123456789'
+    processed_image.save('processed_image.png')
+
+    text = pytesseract.image_to_string(processed_image, config=custom_config)
     if text =="":
-        path =identify + str(rank)
-        cropped_image.save(f'image/{path}.png')
-        with open("./err.txt", 'a+', encoding='utf-8') as output_file:
-                output_file.write(identify + str(rank))
+        text=str(0)
+        # path =identify + str(rank)
+        # text_dd =f"{identify}-{str(rank)} \n"
+        # processed_image.save(f'image/{path}.png')
+        # with open("./err.txt", 'a+', encoding='utf-8') as output_file:
+        #         output_file.writelines(text_dd)
     text_clean = re.sub(r'\D', '', text)
     print(text_clean)
     return text_clean
